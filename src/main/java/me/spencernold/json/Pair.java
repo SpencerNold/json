@@ -1,31 +1,42 @@
 package me.spencernold.json;
 
-public class Pair<K, V> {
+/**
+ * Java does not support tuples or any other way of multiple return values, so
+ * this is a generic data structure for connecting two generic reference types
+ * in memory.
+ * 
+ * @author Spencer Nold
+ * @version 1.0.0
+ *
+ * @param <K> key
+ * @param <V> value
+ */
+class Pair<K, V> {
 
 	private K key;
 	private V value;
-	
-	public Pair(K key, V value) {
+
+	Pair(K key, V value) {
 		this.key = key;
 		this.value = value;
 	}
-	
-	public Pair() {
+
+	Pair() {
 	}
-	
-	public K getKey() {
+
+	K getKey() {
 		return key;
 	}
-	
-	public void setKey(K key) {
+
+	void setKey(K key) {
 		this.key = key;
 	}
-	
-	public V getValue() {
+
+	V getValue() {
 		return value;
 	}
-	
-	public void setValue(V value) {
+
+	void setValue(V value) {
 		this.value = value;
 	}
 }

@@ -10,18 +10,38 @@ import java.util.Map.Entry;
 
 import me.spencernold.json.components.JsonComponent;
 
+/**
+ * Writes objects into the Json format.
+ * 
+ * @author Spencer Nold
+ * @version 1.0.0
+ */
 public class JsonWriter {
-	
+
 	private final boolean nullOnUnsafe;
-	
+
+	/**
+	 * Creates an instance of a JsonWriter with a parameter which determines if an
+	 * error should be fatal or not. The default is true, that an error will not be
+	 * fatal.
+	 * 
+	 * @param nullOnUnsafe whether components should be null or throw an exception
+	 *                     should an error occur
+	 */
 	public JsonWriter(boolean nullOnUnsafe) {
 		this.nullOnUnsafe = nullOnUnsafe;
 	}
-	
+
 	public JsonWriter() {
 		this(true);
 	}
 
+	/**
+	 * Writes an object into the JavaScript Object Notation format.
+	 * 
+	 * @param object object to be written
+	 * @return Json representation of this input object
+	 */
 	public String write(Object object) {
 		if (object == null)
 			return "null";
@@ -39,7 +59,7 @@ public class JsonWriter {
 			return writeArray(object);
 		return writeObject(object);
 	}
-	
+
 	private String writeCollection(Collection<?> collection) {
 		int size = collection.size();
 		String[] values = new String[size];
@@ -58,7 +78,7 @@ public class JsonWriter {
 			values[i] = write(Array.get(array, i));
 		return "[" + String.join(", ", values) + "]";
 	}
-	
+
 	private String writeMap(Map<?, ?> map) {
 		int size = map.size();
 		String[] values = new String[size];
@@ -69,7 +89,7 @@ public class JsonWriter {
 		}
 		return "{" + String.join(", ", values) + "}";
 	}
-	
+
 	private String writeObject(Object object) {
 		Class<?> clazz = object.getClass();
 		List<String> values = new ArrayList<>();
@@ -82,7 +102,7 @@ public class JsonWriter {
 		}
 		return "{" + String.join(", ", values) + "}";
 	}
-	
+
 	private Object accessFieldUnsafe(Field field, Object object) {
 		try {
 			field.setAccessible(true);

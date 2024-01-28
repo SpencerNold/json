@@ -18,10 +18,24 @@ import me.spencernold.json.components.JsonComponent;
 import me.spencernold.json.components.JsonObject;
 import me.spencernold.json.components.JsonPrimitive;
 
+/**
+ * Reads Json into Java objects
+ * 
+ * @author Spencer Nold
+ * @version 1.0.0
+ */
 public class JsonReader {
 
 	private final boolean nullOnUnsafe;
 
+	/**
+	 * Creates an instance of a JsonReader with a parameter which determines if an
+	 * error should be fatal or not. The default is true, that an error will not be
+	 * fatal.
+	 * 
+	 * @param nullOnUnsafe whether components should be null or throw an exception
+	 *                     should an error occur
+	 */
 	public JsonReader(boolean nullOnUnsafe) {
 		this.nullOnUnsafe = nullOnUnsafe;
 	}
@@ -30,10 +44,27 @@ public class JsonReader {
 		this(true);
 	}
 
+	/**
+	 * Reads JavaScript Object Notation into a Java Object.
+	 * 
+	 * @param <T>   type to be read
+	 * @param json  input json
+	 * @param clazz class to write
+	 * @return Java object representation of the input Json
+	 */
 	public <T> T read(String json, Class<T> clazz) {
 		return read(json, TypeDef.of(clazz));
 	}
 
+	/**
+	 * Reads JavaScript Object Notation into a Java Object. This method is for List
+	 * and other parameterized data types.
+	 * 
+	 * @param <T>   type to be read
+	 * @param json  input json
+	 * @param clazz class to write
+	 * @return Java object representation of the input Json
+	 */
 	public <T> T read(String json, TypeDef<T> type) {
 		Object object = read(json, type.getRawType(), type.getType());
 		return object == null ? null : type.cast(object);
@@ -51,6 +82,7 @@ public class JsonReader {
 	}
 
 	private Pair<Integer, Object> parseBranch(String json, Class<?> rawType, Type type) {
+		// TODO Add support for non-collection/map generic type objects
 		int len = json.length();
 		char c = json.charAt(0);
 		if ((c == '"' || c == '\'') && (JsonComponent.class.isAssignableFrom(rawType) || isString(rawType)))
@@ -144,7 +176,8 @@ public class JsonReader {
 				value = parseBranch(json.substring(index, length), JsonComponent.class, JsonComponent.class);
 				temporary.add(value.getValue());
 			} else if (rawType.isArray()) {
-				value = parseBranch(json.substring(index, length), rawType.getComponentType(), rawType.getComponentType());
+				value = parseBranch(json.substring(index, length), rawType.getComponentType(),
+						rawType.getComponentType());
 				temporary.add(value.getValue());
 			} else if (Collection.class.isAssignableFrom(rawType)) {
 				if (!(type instanceof ParameterizedType)) {
@@ -152,7 +185,8 @@ public class JsonReader {
 					break;
 				}
 				Type mType = ((ParameterizedType) type).getActualTypeArguments()[0];
-				value = parseBranch(json.substring(index, length), (Class<?>) mType, mType); // TODO support lists of lists/maps/etc.
+				value = parseBranch(json.substring(index, length), (Class<?>) mType, mType); // TODO support lists of
+																								// lists/maps/etc.
 				temporary.add(value.getValue());
 			}
 			index += value.getKey();
@@ -171,11 +205,12 @@ public class JsonReader {
 		}
 		return new Pair<>(size, array);
 	}
-	
+
 	private Object initializePossibleJsonArrayArrayOrCollection(Class<?> clazz, int length) {
 		if (JsonComponent.class.isAssignableFrom(clazz))
 			return new JsonArray();
-		else if (List.class.isAssignableFrom(clazz)) // TODO Add checks for if the list is an ArrayList, LinkedList, etc. first
+		else if (List.class.isAssignableFrom(clazz)) // TODO Add checks for if the list is an ArrayList, LinkedList,
+														// etc. first
 			return new ArrayList<>(length);
 		else if (Set.class.isAssignableFrom(clazz))
 			return new HashSet<>(length); // TODO Same thing, except for HashSet, etc.
@@ -213,7 +248,8 @@ public class JsonReader {
 					break;
 				}
 				Type mType = ((ParameterizedType) type).getActualTypeArguments()[1];
-				value = parseBranch(json.substring(index, length), (Class<?>) mType, mType); // TODO support maps of lists/maps/etc.
+				value = parseBranch(json.substring(index, length), (Class<?>) mType, mType); // TODO support maps of
+																								// lists/maps/etc.
 				((Map<String, Object>) object).put(name, value.getValue());
 			} else {
 				try {
@@ -255,7 +291,7 @@ public class JsonReader {
 			throw new JsonException(e.getMessage());
 		}
 	}
-	
+
 	private Object forceConvertToType(Object object, Class<?> type) {
 		if (object == null)
 			return null;
@@ -276,7 +312,8 @@ public class JsonReader {
 			else if (type == double.class || type == Double.class)
 				return num.doubleValue();
 		}
-		return object; // primitive vs. object wrapper class case (or error case, either way it will be handled elsewhere)
+		return object; // primitive vs. object wrapper class case (or error case, either way it will be
+						// handled elsewhere)
 	}
 
 	private boolean isString(Class<?> clazz) {
